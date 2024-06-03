@@ -1,0 +1,10 @@
+# Virtual Environment Folder
+.venv
+
+# Python cache
+__pycache__/
+
+# Local configuration file
+config.local.json
+.vscode/
+.env.local
