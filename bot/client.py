@@ -2,7 +2,7 @@ from discord.ext import commands
 import discord
 import os
 
-from bot.events.counter import *
+from bot.events.points import *
 from bot.config.cogs_list import *
 from bot.database import db, TableName
 
@@ -17,7 +17,7 @@ class Client(commands.Bot):
 			print("Error while connecting to the database: ", e)
 
 		self.db = db
-		self.counter_event = Counter(self)
+		self.points_event = Points(self)
 
 	async def setup_hook(self):
 		"""
@@ -38,6 +38,7 @@ class Client(commands.Bot):
 		for guild in all_guilds:
 			whiltelisted_channels = self.db.select(TableName.CHANNELS.value, ["channel_id"], {"guild_id": guild})
 			self.guilds_config[guild] = {"whiltelisted_channels": whiltelisted_channels}
+		print("Guilds config fetched")
 
 	async def on_ready(self):
 		await self.wait_until_ready()
@@ -61,4 +62,4 @@ class Client(commands.Bot):
 			return
 		
 		if message.channel.id in [channel["channel_id"] for channel in self.guilds_config[message.guild.id]["whiltelisted_channels"]]:
-			await self.counter_event.process_counter(message)
+			await self.points_event.process_message(message)

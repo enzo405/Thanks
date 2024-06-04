@@ -11,6 +11,7 @@ class TableName(Enum):
 
 class ThanksDB:
     def start(self):
+        print("Connecting to the database...")
         self.db = mysql.connector.connect(
             host=os.getenv("DB_HOST"),
             port=int(os.getenv("DB_PORT")),
@@ -20,6 +21,7 @@ class ThanksDB:
         )
         self.cursor = self.db.cursor(dictionary=True)
         self.init_db()
+        print("Connected to the database.")
 
     def init_db(self):
         self.cursor.execute(f"CREATE TABLE IF NOT EXISTS `{TableName.GUILDS.value}` ("
@@ -35,9 +37,13 @@ class ThanksDB:
         )
         
         self.cursor.execute(f"CREATE TABLE IF NOT EXISTS `{TableName.POINTS.value}` ("
+            "`guild_id` BIGINT NOT NULL,"
             "`discord_user_id` BIGINT NOT NULL,"
-            "`counter` BIGINT DEFAULT 0,"
-            "PRIMARY KEY (`discord_user_id`)"
+            "`points` BIGINT DEFAULT 0,"
+            "`last_thanks` TIMESTAMP DEFAULT CURRENT_TIMESTAMP," 
+            "`num_of_thanks` BIGINT DEFAULT 0,"
+            "PRIMARY KEY (`guild_id`, `discord_user_id`),"
+            f"FOREIGN KEY (`guild_id`) REFERENCES `{TableName.GUILDS.value}` (`guild_id`)"
             ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
         )
         
@@ -91,20 +97,23 @@ class ThanksDB:
         self.cursor.execute(f"SELECT {', '.join(columns)} FROM `{table}` WHERE {where_query}", tuple(where.values()))
         return self.cursor.fetchall()
         
-    def update(self, table:str, data:dict):
+    def update(self, table:str, data:dict, where:dict):
         """
         Update records in the specified table based on the given conditions.
 
         Args:
             table (str): The name of the table to update.
             data (dict): A dictionary containing the column names as keys and the new values as values.
+            where (dict): A dictionary containing the column names as keys and the conditions as values.
 
         Returns:
             None
         """
-        set = ', '.join([f"{key} = %s" for key in data.keys()])
-        print(f"UPDATE `{table}` SET {set}", tuple(data.values()))
-        self.cursor.execute(f"UPDATE `{table}` SET {set}", tuple(data.values()))
+        set_clause = ', '.join([f"{key} = %s" for key in data.keys()])
+        where_clause = ' AND '.join([f"{key} = %s" for key in where.keys()])
+        values = tuple(data.values()) + tuple(where.values())
+        print(f"UPDATE `{table}` SET {set_clause} WHERE {where_clause}", values)
+        self.cursor.execute(f"UPDATE `{table}` SET {set_clause} WHERE {where_clause}", values)
         self.db.commit()
 
     def delete(self, table:str, where:dict):
