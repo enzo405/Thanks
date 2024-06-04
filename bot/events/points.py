@@ -44,14 +44,14 @@ class Points:
 			if user[0]["last_thanks"] > date_now - datetime.timedelta(minutes=1):
 				await message.channel.send("You can only give a point every minute.") 
 				return
-			db.update(TableName.POINTS.value, {"guild_id": message.guild.id, "discord_user_id": message.author.id}, {"last_thanks": date_now, "num_of_thanks": user[0]["num_of_thanks"] + 1})
+			db.update(TableName.POINTS.value, {"last_thanks": date_now, "num_of_thanks": user[0]["num_of_thanks"] + 1}, {"guild_id": message.guild.id, "discord_user_id": message.author.id})
 
 		target = db.select(TableName.POINTS.value, where={"guild_id": message.guild.id, "discord_user_id": user_id})
 
 		if not target:
 			db.insert(TableName.POINTS.value, {"guild_id": message.guild.id, "discord_user_id": user_id, "points": 1})
 		else:
-			db.update(TableName.POINTS.value, {"guild_id": message.guild.id, "discord_user_id": user_id}, {"points": target[0]["points"] + 1})
+			db.update(TableName.POINTS.value, {"points": target[0]["points"] + 1}, {"guild_id": message.guild.id, "discord_user_id": user_id})
 		
 		# Send a message to the channel
 		embed = discord.Embed(title="", description=f"<@{user_id}> has received a point!", color=0x00ff00)
