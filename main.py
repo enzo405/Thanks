@@ -23,6 +23,6 @@ if __name__ == "__main__":
         Thanks_Bot.run(os.getenv("TOKEN"))
     elif environment == "prod":
         print('Prod mode launched running ...')
-        Thanks_Bot.run(os.getenv("PROD_TOKEN"))
+        Thanks_Bot.run(os.getenv("TOKEN"))
     else:
         print("Invalid environment")
