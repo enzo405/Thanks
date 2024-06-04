@@ -27,16 +27,23 @@ class Client(commands.Bot):
 		This is only called once, in login(), and will be called before any events are dispatched, making it a better solution than doing such setup in the on_ready() event.
 		"""
 		print("Setting up the bot...")
+		
+		self.fetch_guilds_config()
 
 		await load_cogs(self, cogs)
 
+	def fetch_guilds_config(self):
+		self.guilds_config = {}
+		all_guilds = [guild["guild_id"] for guild in self.db.select(TableName.GUILDS.value, ["guild_id"])]
+		for guild in all_guilds:
+			whiltelisted_channels = self.db.select(TableName.CHANNELS.value, ["channel_id"], {"guild_id": guild})
+			self.guilds_config[guild] = {"whiltelisted_channels": whiltelisted_channels}
+
 	async def on_ready(self):
 		await self.wait_until_ready()
-		
-		all_guilds = [guild["guild_id"] for guild in self.db.select(TableName.GUILDS.value, ["guild_id"])]
-		
+
 		for guild in self.guilds:
-			if guild.id not in all_guilds:
+			if guild.id not in self.guilds_config.keys():
 				self.db.insert(TableName.GUILDS.value, {"guild_id": guild.id})
 			await self.tree.sync(guild=guild)
 		await self.tree.sync()
@@ -48,8 +55,10 @@ class Client(commands.Bot):
 		print("Version de Discord: " + str(discord.__version__))
 		print(f'In {len(self.guilds)} server: {", ".join([guild.name for guild in self.guilds])}')
 		print("-----------------------------------------")
-    
-	async def on_message(self, message):
+	
+	async def on_message(self, message: discord.Message):
 		if message.author.bot:
 			return
-		await self.counter_event.process_counter(message)
+		
+		if message.channel.id in [channel["channel_id"] for channel in self.guilds_config[message.guild.id]["whiltelisted_channels"]]:
+			await self.counter_event.process_counter(message)

@@ -55,21 +55,32 @@ class ThanksDB:
 
     def insert(self, table:str, data:dict):
         """
-        @param table: str - table name
-        @param data: dict - data to insert
+        Insert data into the specified table.
+
+        Args:
+            table (str): The name of the table.
+            data (dict): The data to insert.
+
+        Returns:
+            None
         """
         keys = ', '.join(data.keys())
         values = ', '.join(['%s'] * len(data))
-        self.cursor.execute(f"INSERT INTO `{table}` ({keys}) VALUES ({values})", tuple(data.values()))
         print(f"INSERT INTO `{table}` ({keys}) VALUES ({values})", tuple(data.values()))
+        self.cursor.execute(f"INSERT INTO `{table}` ({keys}) VALUES ({values})", tuple(data.values()))
         self.db.commit()
 
     def select(self, table:str, columns:list=None, where:dict=None):
         """
-        @param table: str - table name
-        @param columns: list - columns to select
-        @param where: dict - where clause
-        @return: tuple - selected data
+        Selects data from a table in the database.
+
+        Args:
+            table (str): The name of the table.
+            columns (list, optional): The columns to select. Defaults to None, which selects all columns.
+            where (dict, optional): The where clause as a dictionary of column-value pairs. Defaults to None.
+
+        Returns:
+            tuple: The selected data as a tuple.
         """
         if columns is None:
             columns = ['*']
@@ -80,26 +91,36 @@ class ThanksDB:
         self.cursor.execute(f"SELECT {', '.join(columns)} FROM `{table}` WHERE {where_query}", tuple(where.values()))
         return self.cursor.fetchall()
         
-    def update(self, table:str, data:dict, where:str, where_data:tuple):
+    def update(self, table:str, data:dict):
         """
-        @param table: str - table name
-        @param data: dict - data to update
-        @param where: str - where clause
-        @param where_data: tuple - where data
+        Update records in the specified table based on the given conditions.
+
+        Args:
+            table (str): The name of the table to update.
+            data (dict): A dictionary containing the column names as keys and the new values as values.
+
+        Returns:
+            None
         """
         set = ', '.join([f"{key} = %s" for key in data.keys()])
-        self.cursor.execute(f"UPDATE `{table}` SET {set} WHERE {where}", tuple(list(data.values()) + list(where_data)))
-        print(f"UPDATE `{table}` SET {set} WHERE {where}", tuple(list(data.values()) + list(where_data)))
+        print(f"UPDATE `{table}` SET {set}", tuple(data.values()))
+        self.cursor.execute(f"UPDATE `{table}` SET {set}", tuple(data.values()))
         self.db.commit()
 
-    def delete(self, table:str, where:str, where_data:tuple):
+    def delete(self, table:str, where:dict):
         """
-        @param table: str - table name
-        @param where: str - where clause
-        @param where_data: tuple - where data
+        Deletes records from the specified table based on the given WHERE clause.
+
+        Args:
+            table (str): The name of the table to delete records from.
+            where (dict): A dictionary containing the column names as keys and the values as the conditions for deletion.
+
+        Returns:
+            None
         """
-        self.cursor.execute(f"DELETE FROM `{table}` WHERE {where}", where_data)
-        print(f"DELETE FROM `{table}` WHERE {where}", where_data)
+        where_clause = ' AND '.join([f"{key} = %s" for key in where.keys()])
+        print(f"DELETE FROM `{table}` WHERE {where_clause}", tuple(where.values()))
+        self.cursor.execute(f"DELETE FROM `{table}` WHERE {where_clause}", tuple(where.values()))
         self.db.commit()
 
 
