@@ -17,6 +17,7 @@ class Client(commands.Bot):
 			print("Error while connecting to the database: ", e)
 
 		self.db = db
+		self.counter_event = Counter(self)
 
 	async def setup_hook(self):
 		"""
@@ -47,3 +48,8 @@ class Client(commands.Bot):
 		print("Version de Discord: " + str(discord.__version__))
 		print(f'In {len(self.guilds)} server: {", ".join([guild.name for guild in self.guilds])}')
 		print("-----------------------------------------")
+    
+	async def on_message(self, message):
+		if message.author.bot:
+			return
+		await self.counter_event.process_counter(message)

@@ -1,7 +1,9 @@
 from bot.cogs.rank import *
+from bot.cogs.admin.channels import *
 
 cogs = [
     'bot.cogs.rank',
+    'bot.cogs.admin.channels'
 ]
 
 async def load_cogs(bot: discord.Client, cog_list: list):

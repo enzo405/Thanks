@@ -7,6 +7,7 @@ class TableName(Enum):
     GUILDS="guilds"
     ADMINS="bot_administrator"
     POINTS="points"
+    CHANNELS="channels"
 
 class ThanksDB:
     def start(self):
@@ -36,7 +37,15 @@ class ThanksDB:
         self.cursor.execute(f"CREATE TABLE IF NOT EXISTS `{TableName.POINTS.value}` ("
             "`discord_user_id` BIGINT NOT NULL,"
             "`counter` BIGINT DEFAULT 0,"
-            "PRIMARY KEY (`discord_id`)"
+            "PRIMARY KEY (`discord_user_id`)"
+            ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
+        )
+        
+        self.cursor.execute(f"CREATE TABLE IF NOT EXISTS `{TableName.CHANNELS.value}` ("
+            "`channel_id` BIGINT NOT NULL,"
+            "`guild_id` BIGINT NOT NULL,"
+            "PRIMARY KEY (`channel_id`),"
+            f"FOREIGN KEY (`guild_id`) REFERENCES `{TableName.GUILDS.value}` (`guild_id`)"
             ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
         )
 
