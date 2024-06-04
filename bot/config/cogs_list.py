@@ -1,8 +1,8 @@
-from bot.cogs.rank import *
+from bot.cogs.stats import *
 from bot.cogs.admin.channels import *
 
 cogs = [
-    'bot.cogs.rank',
+    'bot.cogs.stats',
     'bot.cogs.admin.channels'
 ]
 
