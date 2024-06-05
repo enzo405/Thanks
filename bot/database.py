@@ -76,7 +76,7 @@ class ThanksDB:
         self.cursor.execute(f"INSERT INTO `{table}` ({keys}) VALUES ({values})", tuple(data.values()))
         self.db.commit()
 
-    def select(self, table:str, columns:list=None, where:dict=None):
+    def select(self, table:str, columns:list=None, where:dict=None, limit:int=None, order_by:str=None):
         """
         Selects data from a table in the database.
 
@@ -84,17 +84,24 @@ class ThanksDB:
             table (str): The name of the table.
             columns (list, optional): The columns to select. Defaults to None, which selects all columns.
             where (dict, optional): The where clause as a dictionary of column-value pairs. Defaults to None.
+            limit (int, optional): The maximum number of rows to return. Defaults to None.
+            order_by (str, optional): The column to order the results by. Defaults to None.
 
         Returns:
             tuple: The selected data as a tuple.
         """
         if columns is None:
             columns = ['*']
-        if where is None:
-            self.cursor.execute(f"SELECT {', '.join(columns)} FROM `{table}`")
-            return self.cursor.fetchall()
-        where_query = ' AND '.join([f"{key} = %s" for key in where.keys()])
-        self.cursor.execute(f"SELECT {', '.join(columns)} FROM `{table}` WHERE {where_query}", tuple(where.values()))
+        query = f"SELECT {', '.join(columns)} FROM `{table}`"
+        if where:
+            where_query = ' AND '.join([f"{key} = %s" for key in where.keys()])
+            query += f" WHERE {where_query}"
+        if order_by:
+            query += f" ORDER BY {order_by}"
+        if limit:
+            query += f" LIMIT {limit}"
+        print(query, tuple(where.values()) if where else None)
+        self.cursor.execute(query, tuple(where.values()) if where else None)
         return self.cursor.fetchall()
         
     def update(self, table:str, data:dict, where:dict):
