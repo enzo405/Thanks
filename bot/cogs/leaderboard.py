@@ -13,7 +13,7 @@ class Leaderboard(commands.Cog):
     @app_commands.command(name="leaderboard_thanks",description="See the leaderboard of thanks")
     async def leaderboard_thanks(self,interaction:discord.Interaction):
         try:
-            users = self.db.select(TableName.POINTS.value, limit=10, order_by="points DESC")
+            users = self.db.select(TableName.POINTS.value, where={"guild_id": interaction.guild_id}, limit=10, order_by="points DESC")
             embed = discord.Embed(title="Top 10 Thankers", description=f"", color=0x1e1f22)
             for i, user in enumerate(users):
                 member = interaction.guild.get_member(user["discord_user_id"])
