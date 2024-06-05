@@ -36,8 +36,8 @@ class Client(commands.Bot):
 		self.guilds_config = {}
 		all_guilds = [guild["guild_id"] for guild in self.db.select(TableName.GUILDS.value, ["guild_id"])]
 		for guild in all_guilds:
-			whiltelisted_channels = self.db.select(TableName.CHANNELS.value, ["channel_id"], {"guild_id": guild})
-			self.guilds_config[guild] = {"whiltelisted_channels": whiltelisted_channels}
+			blacklisted_channel = self.db.select(TableName.CHANNELS.value, ["channel_id"], {"guild_id": guild})
+			self.guilds_config[guild] = {"blacklisted_channel": blacklisted_channel}
 		print("Guilds config fetched")
 
 	async def on_ready(self):
@@ -61,5 +61,5 @@ class Client(commands.Bot):
 		if message.author.bot:
 			return
 		
-		if message.channel.id in [channel["channel_id"] for channel in self.guilds_config[message.guild.id]["whiltelisted_channels"]]:
+		if message.channel.id not in [channel["channel_id"] for channel in self.guilds_config[message.guild.id]["blacklisted_channel"]]:
 			await self.points_event.process_message(message)
