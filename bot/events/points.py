@@ -17,7 +17,7 @@ class Points:
 		Process the message.
 		"""
 		# Check if the message contains either "ty" or "tyvm" or "tyty" or "tysm" or "thank you" or "thanks" or "thx" or "thnx" or "merci" or "gracias" or "danke" or "arigato" or "obrigado" or "grazie" or "dank"
-		if not any([i in message.content.lower().split() for i in ["ty", "tyvm", "tyty", "tysm", "thank you", "thanks", "thx", "thnx"]]):
+		if not any([i in message.content.lower().split() for i in ["ty", "tyvm", "tyty", "tysm", "thank", "thanks", "thx", "thnx"]]):
 			return
 
 		# Check if the message contains a mention or a reply
@@ -41,7 +41,7 @@ class Points:
 			db.insert(TableName.POINTS.value, {"guild_id": message.guild.id, "discord_user_id": message.author.id, "last_thanks": date_now, "num_of_thanks": 1})
 			user = db.select(TableName.POINTS.value, where={"guild_id": message.guild.id, "discord_user_id": message.author.id})
 		else:
-			if user[0]["last_thanks"] > date_now - datetime.timedelta(minutes=1):
+			if user[0]["last_thanks"] > date_now - datetime.timedelta(minutes=2):
 				return
 			db.update(TableName.POINTS.value, {"last_thanks": date_now, "num_of_thanks": user[0]["num_of_thanks"] + 1}, {"guild_id": message.guild.id, "discord_user_id": message.author.id})
 
