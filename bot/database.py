@@ -96,10 +96,10 @@ class ThanksDB:
         if where:
             where_query = ' AND '.join([f"{key} = %s" for key in where.keys()])
             query += f" WHERE {where_query}"
-        if limit:
-            query += f" LIMIT {limit}"
         if order_by:
             query += f" ORDER BY {order_by}"
+        if limit:
+            query += f" LIMIT {limit}"
         print(query, tuple(where.values()) if where else None)
         self.cursor.execute(query, tuple(where.values()) if where else None)
         return self.cursor.fetchall()
