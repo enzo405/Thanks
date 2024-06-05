@@ -17,7 +17,7 @@ class Points:
 		Process the message.
 		"""
 		# Check if the message contains either "ty" or "tyvm" or "tyty" or "tysm" or "thank you" or "thanks" or "thx" or "thnx" or "merci" or "gracias" or "danke" or "arigato" or "obrigado" or "grazie" or "dank"
-		if not any([i in message.content.lower() for i in ["ty", "tyvm", "tyty", "tysm", "thank you", "thanks", "thx", "thnx", "merci", "gracias", "danke", "arigato", "obrigado", "grazie", "dank"]]):
+		if not any([i in message.content.lower().split() for i in ["ty", "tyvm", "tyty", "tysm", "thank you", "thanks", "thx", "thnx"]]):
 			return
 
 		# Check if the message contains a mention or a reply
