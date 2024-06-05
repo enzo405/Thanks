@@ -92,11 +92,16 @@ class ThanksDB:
         """
         if columns is None:
             columns = ['*']
-        if where is None:
-            self.cursor.execute(f"SELECT {', '.join(columns)} FROM `{table} {f'LIMIT {limit}' if limit else ''} {f'ORDER BY {order_by}' if order_by else ''}`")
-            return self.cursor.fetchall()
-        where_query = ' AND '.join([f"{key} = %s" for key in where.keys()])
-        self.cursor.execute(f"SELECT {', '.join(columns)} FROM `{table}` WHERE {where_query} {f'LIMIT {limit}' if limit else ''} {f'ORDER BY {order_by}' if order_by else ''}", tuple(where.values()))
+        query = f"SELECT {', '.join(columns)} FROM `{table}`"
+        if where:
+            where_query = ' AND '.join([f"{key} = %s" for key in where.keys()])
+            query += f" WHERE {where_query}"
+        if limit:
+            query += f" LIMIT {limit}"
+        if order_by:
+            query += f" ORDER BY {order_by}"
+        print(query, tuple(where.values()) if where else None)
+        self.cursor.execute(query, tuple(where.values()) if where else None)
         return self.cursor.fetchall()
         
     def update(self, table:str, data:dict, where:dict):
