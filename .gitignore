@@ -8,3 +8,4 @@ __pycache__/
 config.local.json
 .vscode/
 .env.local
+.env.prod
