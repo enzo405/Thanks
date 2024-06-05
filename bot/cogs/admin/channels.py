@@ -12,11 +12,8 @@ class Channel(commands.Cog):
 
 	@app_commands.command(name="channel_whitelist",description="Add the channel to the list of channel where the bot can interact")
 	async def channel_whitelist(self,interaction:discord.Interaction, channel: discord.TextChannel):
-		mysql_result = self.bot.db.select(TableName.ADMINS.value, ["discord_id"])
-		self.users_allowed_for_commands = [user["discord_id"] for user in mysql_result]
-		
-		if interaction.user.id not in self.users_allowed_for_commands:
-			await interaction.response.send_message("You are not allowed to use this command", ephemeral=True)
+		if not interaction.user.guild_permissions.administrator:
+			await interaction.response.send_message("Only server administrator can use this command", ephemeral=True)
 			return
 
 		if channel.type != discord.ChannelType.text:
@@ -36,11 +33,8 @@ class Channel(commands.Cog):
 
 	@app_commands.command(name="channel_blacklist",description="Remove the channel to the list of channel where the bot can interact")
 	async def channel_blacklist(self,interaction:discord.Interaction, channel: discord.TextChannel):
-		mysql_result = self.bot.db.select(TableName.ADMINS.value, ["discord_id"])
-		self.users_allowed_for_commands = [user["discord_id"] for user in mysql_result]
-
-		if interaction.user.id not in self.users_allowed_for_commands:
-			await interaction.response.send_message("You are not allowed to use this command", ephemeral=True)
+		if not interaction.user.guild_permissions.administrator:
+			await interaction.response.send_message("Only server administrator can use this command", ephemeral=True)
 			return
 		
 		if channel.type != discord.ChannelType.text:
