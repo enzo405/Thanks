@@ -12,7 +12,7 @@ class Client(commands.Bot):
 		super().__init__(intents=intents, command_prefix="s!", help_command=None)
 
 		try:
-			db.start()
+			db.connect()
 		except Exception as e:
 			print("Error while connecting to the database: ", e)
 

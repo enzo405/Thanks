@@ -1,5 +1,6 @@
 import os
 import mysql.connector
+import time
 
 from enum import Enum
 
@@ -10,18 +11,52 @@ class TableName(Enum):
     CHANNELS="channels"
 
 class ThanksDB:
-    def start(self):
-        print("Connecting to the database...")
-        self.db = mysql.connector.connect(
-            host=os.getenv("DB_HOST"),
-            port=int(os.getenv("DB_PORT")),
-            user=os.getenv("DB_USER"),
-            password=os.getenv("DB_PASSWORD"),
-            database=os.getenv("DB_DATABASE")
-        )
-        self.cursor = self.db.cursor(dictionary=True)
-        self.init_db()
-        print("Connected to the database.")
+    def __init__(self, retry_interval=5, keep_alive_interval=60):
+        self.retry_interval = retry_interval
+        self.keep_alive_interval = keep_alive_interval
+        self.start_keep_alive()
+
+    def connect(self):
+        while True:
+            try:
+                print("Connecting to the database...")
+                self.db = mysql.connector.connect(
+                    host=os.getenv("DB_HOST", "localhost"),
+                    port=int(os.getenv("DB_PORT", 3306)),
+                    user=os.getenv("DB_USER"),
+                    password=os.getenv("DB_PASSWORD"),
+                    database=os.getenv("DB_DATABASE")
+                )
+                self.cursor = self.db.cursor(dictionary=True)
+                self.init_db()
+                print("Connected to the database.")
+                break
+            except mysql.connector.Error as err:
+                print(f"Error: {err}")
+                print(f"Retrying in {self.retry_interval} seconds...")
+                time.sleep(self.retry_interval)
+
+    def start_keep_alive(self):
+        """Periodically run a simple query to keep the connection alive."""
+        import threading
+        def keep_alive():
+            while True:
+                try:
+                    if self.db.is_connected():
+                        self.cursor.execute("SELECT 1")
+                    else:
+                        self.connect()
+                except mysql.connector.Error as err:
+                    print(f"Keep-alive error: {err}")
+                    self.connect()
+                time.sleep(self.keep_alive_interval)
+        threading.Thread(target=keep_alive, daemon=True).start()
+
+    def reconnect_if_needed(self):
+        """Reconnect if the database connection is not available."""
+        if not self.db.is_connected():
+            print("Lost connection to the database. Reconnecting...")
+            self.connect()
 
     def init_db(self):
         self.cursor.execute(f"CREATE TABLE IF NOT EXISTS `{TableName.GUILDS.value}` ("
@@ -70,6 +105,7 @@ class ThanksDB:
         Returns:
             None
         """
+        self.reconnect_if_needed()
         keys = ', '.join(data.keys())
         values = ', '.join(['%s'] * len(data))
         print(f"INSERT INTO `{table}` ({keys}) VALUES ({values})", tuple(data.values()))
@@ -90,6 +126,7 @@ class ThanksDB:
         Returns:
             tuple: The selected data as a tuple.
         """
+        self.reconnect_if_needed()
         if columns is None:
             columns = ['*']
         query = f"SELECT {', '.join(columns)} FROM `{table}`"
@@ -116,6 +153,7 @@ class ThanksDB:
         Returns:
             None
         """
+        self.reconnect_if_needed()
         set_clause = ', '.join([f"{key} = %s" for key in data.keys()])
         where_clause = ' AND '.join([f"{key} = %s" for key in where.keys()])
         values = tuple(data.values()) + tuple(where.values())
@@ -134,10 +172,10 @@ class ThanksDB:
         Returns:
             None
         """
+        self.reconnect_if_needed()
         where_clause = ' AND '.join([f"{key} = %s" for key in where.keys()])
         print(f"DELETE FROM `{table}` WHERE {where_clause}", tuple(where.values()))
         self.cursor.execute(f"DELETE FROM `{table}` WHERE {where_clause}", tuple(where.values()))
         self.db.commit()
 
-
-db = ThanksDB()
+db = ThanksDB(retry_interval=10, keep_alive_interval=60)  # Retry connection every 10 seconds, keep-alive every 60 seconds

@@ -11,6 +11,7 @@ else:
 
 # Load the appropriate .env file
 if environment == "dev":
+    print('using dev env')
     load_dotenv(".env.local")
 else:
     load_dotenv(".env.prod")
