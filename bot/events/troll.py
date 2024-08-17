@@ -27,7 +27,7 @@ class Troll:
 			"why don't you slip into something more comfortable? Like a coma",
 			"some people are like slinkies, they are not really good for anything but they bring a smile to your face when you push them down the stairs",
 			"your birth certificate is an apology letter from the condom factory",
-			"the only way you will ever get laid is if you crawl up a chicken"
+			"the only way you will ever get laid is if you crawl up a chicken",
 			"you are the best at being the worst",
 			"somebody call animal control, we have a wild pig on the loose",
 			"that's a nice face, too bad it's not yours",
