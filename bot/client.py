@@ -64,8 +64,11 @@ class Client(commands.Bot):
 		troll_users_id = [1268548879595343973]
 
 		if message.type == discord.MessageType.reply and message.author.id in troll_users_id and message.reference.resolved.author.id == self.user.id:
-			await asyncio.sleep(10)
-			await self.troll_event.process_message(message)
+			rand_number = random.randrange(0,100)
+			will_answer = 0 < rand_number <= 60
+			if will_answer:
+				await asyncio.sleep(1)
+				await self.troll_event.process_message(message)
 
 		if message.author.bot:
 			return
