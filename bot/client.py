@@ -3,6 +3,7 @@ import discord
 import os
 
 from bot.events.points import *
+from bot.events.troll import *
 from bot.config.cogs_list import *
 from bot.database import db, TableName
 
@@ -18,6 +19,7 @@ class Client(commands.Bot):
 
 		self.db = db
 		self.points_event = Points(self)
+		self.troll_event = Troll(self)
 
 	async def setup_hook(self):
 		"""
@@ -63,3 +65,7 @@ class Client(commands.Bot):
 		
 		if message.channel.id not in [channel["channel_id"] for channel in self.guilds_config[message.guild.id]["blacklisted_channel"]]:
 			await self.points_event.process_message(message)
+		
+		trolling_ids = [1268548879595343973]
+		if message.author.id in trolling_ids and message.type == discord.MessageType.reply and message.reference.resolved.author.id == self.user.id:
+			await self.troll_event.process_message(message)
