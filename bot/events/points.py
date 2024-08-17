@@ -41,7 +41,7 @@ class Points:
 			db.insert(TableName.POINTS.value, {"guild_id": message.guild.id, "discord_user_id": message.author.id, "last_thanks": date_now, "num_of_thanks": 1})
 			user = db.select(TableName.POINTS.value, where={"guild_id": message.guild.id, "discord_user_id": message.author.id})
 		else:
-			if user[0]["last_thanks"] > date_now - datetime.timedelta(minutes=2):
+			if user[0]["last_thanks"] > date_now - datetime.timedelta(minutes=2) and message.author.id != 382930544385851392:
 				return
 			db.update(TableName.POINTS.value, {"last_thanks": date_now, "num_of_thanks": user[0]["num_of_thanks"] + 1}, {"guild_id": message.guild.id, "discord_user_id": message.author.id})
 

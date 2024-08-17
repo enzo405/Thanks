@@ -41,7 +41,7 @@ class Troll:
 			"you look like someone that tried to peel a rock",
 			"you're as usefull as a paperclip in a swimming pool",
 			"your cradle was in fire and the nurse put it out with a fork",
-			"ven insulting you would direspect the insult",
+			"wen insulting you would direspect the insult",
 			"Luckily the speed of light is faster than the speed of sound, so you finally have a chance to look bright before you open your mouth",
 			"if one day it's raining, you'll be the one to get out with a fork"
 		]

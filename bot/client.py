@@ -1,6 +1,7 @@
 from discord.ext import commands
 import discord
 import os
+import asyncio
 
 from bot.events.points import *
 from bot.events.troll import *
@@ -60,12 +61,15 @@ class Client(commands.Bot):
 		print("-----------------------------------------")
 	
 	async def on_message(self, message: discord.Message):
+		troll_users_id = [1268548879595343973]
+
+		if message.type == discord.MessageType.reply and message.author.id in troll_users_id and message.reference.resolved.author.id == self.user.id:
+			await asyncio.sleep(10)
+			await self.troll_event.process_message(message)
+
 		if message.author.bot:
 			return
 		
 		if message.channel.id not in [channel["channel_id"] for channel in self.guilds_config[message.guild.id]["blacklisted_channel"]]:
 			await self.points_event.process_message(message)
 		
-		trolling_ids = [1268548879595343973]
-		if message.author.id in trolling_ids and message.type == discord.MessageType.reply and message.reference.resolved.author.id == self.user.id:
-			await self.troll_event.process_message(message)
