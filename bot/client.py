@@ -65,7 +65,7 @@ class Client(commands.Bot):
 
 		if message.type == discord.MessageType.reply and message.author.id in troll_users_id and message.reference.resolved.author.id == self.user.id:
 			rand_number = random.randrange(0,100)
-			will_answer = 0 < rand_number <= 60
+			will_answer = 0 < rand_number <= 90
 			if will_answer:
 				await asyncio.sleep(1)
 				await self.troll_event.process_message(message)
