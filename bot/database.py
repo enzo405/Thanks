@@ -4,11 +4,13 @@ import time
 
 from enum import Enum
 
+
 class TableName(Enum):
-    GUILDS="guilds"
-    ADMINS="bot_administrator"
-    POINTS="points"
-    CHANNELS="channels"
+    GUILDS = "guilds"
+    ADMINS = "bot_administrator"
+    POINTS = "points"
+    CHANNELS = "channels"
+
 
 class ThanksDB:
     def __init__(self, retry_interval=5, keep_alive_interval=60):
@@ -25,7 +27,7 @@ class ThanksDB:
                     port=int(os.getenv("DB_PORT", 3306)),
                     user=os.getenv("DB_USER"),
                     password=os.getenv("DB_PASSWORD"),
-                    database=os.getenv("DB_DATABASE")
+                    database=os.getenv("DB_DATABASE"),
                 )
                 self.cursor = self.db.cursor(dictionary=True)
                 self.init_db()
@@ -39,6 +41,7 @@ class ThanksDB:
     def start_keep_alive(self):
         """Periodically run a simple query to keep the connection alive."""
         import threading
+
         def keep_alive():
             while True:
                 try:
@@ -50,6 +53,7 @@ class ThanksDB:
                     print(f"Keep-alive error: {err}")
                     self.connect()
                 time.sleep(self.keep_alive_interval)
+
         threading.Thread(target=keep_alive, daemon=True).start()
 
     def reconnect_if_needed(self):
@@ -59,30 +63,34 @@ class ThanksDB:
             self.connect()
 
     def init_db(self):
-        self.cursor.execute(f"CREATE TABLE IF NOT EXISTS `{TableName.GUILDS.value}` ("
+        self.cursor.execute(
+            f"CREATE TABLE IF NOT EXISTS `{TableName.GUILDS.value}` ("
             "`guild_id` BIGINT NOT NULL,"
             "PRIMARY KEY (`guild_id`)"
             ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
         )
 
-        self.cursor.execute(f"CREATE TABLE IF NOT EXISTS `{TableName.ADMINS.value}` ("
+        self.cursor.execute(
+            f"CREATE TABLE IF NOT EXISTS `{TableName.ADMINS.value}` ("
             "`discord_id` BIGINT NOT NULL,"
             "PRIMARY KEY (`discord_id`)"
             ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
         )
-        
-        self.cursor.execute(f"CREATE TABLE IF NOT EXISTS `{TableName.POINTS.value}` ("
+
+        self.cursor.execute(
+            f"CREATE TABLE IF NOT EXISTS `{TableName.POINTS.value}` ("
             "`guild_id` BIGINT NOT NULL,"
             "`discord_user_id` BIGINT NOT NULL,"
             "`points` BIGINT DEFAULT 0,"
-            "`last_thanks` TIMESTAMP DEFAULT CURRENT_TIMESTAMP," 
+            "`last_thanks` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,"
             "`num_of_thanks` BIGINT DEFAULT 0,"
             "PRIMARY KEY (`guild_id`, `discord_user_id`),"
             f"FOREIGN KEY (`guild_id`) REFERENCES `{TableName.GUILDS.value}` (`guild_id`)"
             ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
         )
-        
-        self.cursor.execute(f"CREATE TABLE IF NOT EXISTS `{TableName.CHANNELS.value}` ("
+
+        self.cursor.execute(
+            f"CREATE TABLE IF NOT EXISTS `{TableName.CHANNELS.value}` ("
             "`channel_id` BIGINT NOT NULL,"
             "`guild_id` BIGINT NOT NULL,"
             "PRIMARY KEY (`channel_id`),"
@@ -94,7 +102,7 @@ class ThanksDB:
         self.cursor.close()
         self.db.close()
 
-    def insert(self, table:str, data:dict):
+    def insert(self, table: str, data: dict):
         """
         Insert data into the specified table.
 
@@ -106,13 +114,22 @@ class ThanksDB:
             None
         """
         self.reconnect_if_needed()
-        keys = ', '.join(data.keys())
-        values = ', '.join(['%s'] * len(data))
+        keys = ", ".join(data.keys())
+        values = ", ".join(["%s"] * len(data))
         print(f"INSERT INTO `{table}` ({keys}) VALUES ({values})", tuple(data.values()))
-        self.cursor.execute(f"INSERT INTO `{table}` ({keys}) VALUES ({values})", tuple(data.values()))
+        self.cursor.execute(
+            f"INSERT INTO `{table}` ({keys}) VALUES ({values})", tuple(data.values())
+        )
         self.db.commit()
 
-    def select(self, table:str, columns:list=None, where:dict=None, limit:int=None, order_by:str=None):
+    def select(
+        self,
+        table: str,
+        columns: list = None,
+        where: dict = None,
+        limit: int = None,
+        order_by: str = None,
+    ):
         """
         Selects data from a table in the database.
 
@@ -128,10 +145,10 @@ class ThanksDB:
         """
         self.reconnect_if_needed()
         if columns is None:
-            columns = ['*']
+            columns = ["*"]
         query = f"SELECT {', '.join(columns)} FROM `{table}`"
         if where:
-            where_query = ' AND '.join([f"{key} = %s" for key in where.keys()])
+            where_query = " AND ".join([f"{key} = %s" for key in where.keys()])
             query += f" WHERE {where_query}"
         if order_by:
             query += f" ORDER BY {order_by}"
@@ -140,8 +157,8 @@ class ThanksDB:
         print(query, tuple(where.values()) if where else None)
         self.cursor.execute(query, tuple(where.values()) if where else None)
         return self.cursor.fetchall()
-        
-    def update(self, table:str, data:dict, where:dict):
+
+    def update(self, table: str, data: dict, where: dict):
         """
         Update records in the specified table based on the given conditions.
 
@@ -154,14 +171,16 @@ class ThanksDB:
             None
         """
         self.reconnect_if_needed()
-        set_clause = ', '.join([f"{key} = %s" for key in data.keys()])
-        where_clause = ' AND '.join([f"{key} = %s" for key in where.keys()])
+        set_clause = ", ".join([f"{key} = %s" for key in data.keys()])
+        where_clause = " AND ".join([f"{key} = %s" for key in where.keys()])
         values = tuple(data.values()) + tuple(where.values())
         print(f"UPDATE `{table}` SET {set_clause} WHERE {where_clause}", values)
-        self.cursor.execute(f"UPDATE `{table}` SET {set_clause} WHERE {where_clause}", values)
+        self.cursor.execute(
+            f"UPDATE `{table}` SET {set_clause} WHERE {where_clause}", values
+        )
         self.db.commit()
 
-    def delete(self, table:str, where:dict):
+    def delete(self, table: str, where: dict):
         """
         Deletes records from the specified table based on the given WHERE clause.
 
@@ -173,9 +192,14 @@ class ThanksDB:
             None
         """
         self.reconnect_if_needed()
-        where_clause = ' AND '.join([f"{key} = %s" for key in where.keys()])
+        where_clause = " AND ".join([f"{key} = %s" for key in where.keys()])
         print(f"DELETE FROM `{table}` WHERE {where_clause}", tuple(where.values()))
-        self.cursor.execute(f"DELETE FROM `{table}` WHERE {where_clause}", tuple(where.values()))
+        self.cursor.execute(
+            f"DELETE FROM `{table}` WHERE {where_clause}", tuple(where.values())
+        )
         self.db.commit()
 
-db = ThanksDB(retry_interval=10, keep_alive_interval=60)  # Retry connection every 10 seconds, keep-alive every 60 seconds
+
+db = ThanksDB(
+    retry_interval=10, keep_alive_interval=60
+)  # Retry connection every 10 seconds, keep-alive every 60 seconds
