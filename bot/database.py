@@ -17,6 +17,7 @@ class ThanksDB:
         self.retry_interval = retry_interval
         self.keep_alive_interval = keep_alive_interval
         self.start_keep_alive()
+        self._and = " AND "
 
     def connect(self):
         while True:
@@ -148,7 +149,7 @@ class ThanksDB:
             columns = ["*"]
         query = f"SELECT {', '.join(columns)} FROM `{table}`"
         if where:
-            where_query = " AND ".join([f"{key} = %s" for key in where.keys()])
+            where_query = self._and.join([f"{key} = %s" for key in where.keys()])
             query += f" WHERE {where_query}"
         if order_by:
             query += f" ORDER BY {order_by}"
@@ -172,7 +173,7 @@ class ThanksDB:
         """
         self.reconnect_if_needed()
         set_clause = ", ".join([f"{key} = %s" for key in data.keys()])
-        where_clause = " AND ".join([f"{key} = %s" for key in where.keys()])
+        where_clause = self._and.join([f"{key} = %s" for key in where.keys()])
         values = tuple(data.values()) + tuple(where.values())
         print(f"UPDATE `{table}` SET {set_clause} WHERE {where_clause}", values)
         self.cursor.execute(
@@ -192,7 +193,7 @@ class ThanksDB:
             None
         """
         self.reconnect_if_needed()
-        where_clause = " AND ".join([f"{key} = %s" for key in where.keys()])
+        where_clause = self._and.join([f"{key} = %s" for key in where.keys()])
         print(f"DELETE FROM `{table}` WHERE {where_clause}", tuple(where.values()))
         self.cursor.execute(
             f"DELETE FROM `{table}` WHERE {where_clause}", tuple(where.values())

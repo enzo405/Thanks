@@ -2,11 +2,8 @@ from bot.cogs.stats import *
 from bot.cogs.admin.channels import *
 from bot.cogs.leaderboard import *
 
-cogs = [
-    'bot.cogs.stats',
-    'bot.cogs.admin.channels',
-    'bot.cogs.leaderboard'
-]
+cogs = ["bot.cogs.stats", "bot.cogs.admin.channels", "bot.cogs.leaderboard"]
+
 
 async def load_cogs(bot: discord.Client, cog_list: list):
     for cog in cog_list:
