@@ -10,6 +10,8 @@ class TableName(Enum):
     ADMINS = "bot_administrator"
     POINTS = "points"
     CHANNELS = "channels"
+    AUTOROLES = "autoroles"
+    CACHE_DAILY = "cache_daily"
 
 
 class ThanksDB:
@@ -82,9 +84,11 @@ class ThanksDB:
             f"CREATE TABLE IF NOT EXISTS `{TableName.POINTS.value}` ("
             "`guild_id` BIGINT NOT NULL,"
             "`discord_user_id` BIGINT NOT NULL,"
-            "`points` BIGINT DEFAULT 0,"
+            "`points` INT DEFAULT 0,"
             "`last_thanks` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,"
-            "`num_of_thanks` BIGINT DEFAULT 0,"
+            "`num_of_thanks` INT DEFAULT 0,"
+            "`last_points_date` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,"
+            "`current_day_points` TINYINT DEFAULT 0,"
             "PRIMARY KEY (`guild_id`, `discord_user_id`),"
             f"FOREIGN KEY (`guild_id`) REFERENCES `{TableName.GUILDS.value}` (`guild_id`)"
             ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
@@ -95,6 +99,16 @@ class ThanksDB:
             "`channel_id` BIGINT NOT NULL,"
             "`guild_id` BIGINT NOT NULL,"
             "PRIMARY KEY (`channel_id`),"
+            f"FOREIGN KEY (`guild_id`) REFERENCES `{TableName.GUILDS.value}` (`guild_id`)"
+            ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
+        )
+
+        self.cursor.execute(
+            f"CREATE TABLE IF NOT EXISTS `{TableName.AUTOROLES.value}` ("
+            "`role_id` BIGINT NOT NULL,"
+            "`guild_id` BIGINT NOT NULL,"
+            "`threshold` SMALLINT NOT NULL,"
+            "PRIMARY KEY (`role_id`, `threshold`),"
             f"FOREIGN KEY (`guild_id`) REFERENCES `{TableName.GUILDS.value}` (`guild_id`)"
             ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
         )

@@ -3,7 +3,7 @@ from discord import app_commands
 from discord.ext import commands
 from typing import Union
 
-from bot.database import db, TableName
+from bot.database import TableName
 
 
 class Channel(commands.Cog):
