@@ -9,7 +9,7 @@ from enum import Enum
 class PointsConfig:
     """Configuration for the points system."""
 
-    cooldown_minutes: int = 2
+    cooldown_minutes: int = 60
     daily_limit: int = 5
     thank_words: List[str] = [
         "ty",
@@ -22,7 +22,7 @@ class PointsConfig:
         "thnx",
     ]
     embed_color: int = 0x1E1F22
-    message_timeout: int = 120  # seconds
+    message_timeout: int = 12  # seconds
 
 
 class DailyLimitEnum(Enum):
@@ -91,8 +91,8 @@ class PointsManager:
                 "points": points,
                 "last_thanks": datetime.now(),
                 "num_of_thanks": 0,
-                "last_points_date": datetime.now(),
-                "current_day_points": 1,
+                "last_received_points_date": datetime.now(),
+                "current_day_received_points": 1,
             },
         )
 
@@ -109,18 +109,18 @@ class PointsManager:
                     self.db.update(
                         TableName.POINTS.value,
                         {
-                            "last_points_date": datetime.now(),
+                            "last_received_points_date": datetime.now(),
                             "points": current["points"] + points_delta,
-                            "current_day_points": 1,
+                            "current_day_received_points": 1,
                         },
                         {"guild_id": guild_id, "discord_user_id": user_id},
                     )
                 case DailyLimitEnum.LIMIT_NOT_EXCEEDED:
-                    previous_amount = current["current_day_points"]
+                    previous_amount = current["current_day_received_points"]
                     self.db.update(
                         TableName.POINTS.value,
                         {
-                            "current_day_points": previous_amount + 1,
+                            "current_day_received_points": previous_amount + 1,
                             "points": current["points"] + points_delta,
                         },
                         {"guild_id": guild_id, "discord_user_id": user_id},
@@ -167,14 +167,14 @@ class PointsValidator:
 
     def can_receive_points(self, user: Optional[dict]) -> DailyLimitEnum:
         """Check if the user has been receiving more than x points in the last 24h."""
-        current_day_points = user["current_day_points"]
-        last_points_date = user["last_points_date"]
+        current_day_received_points = user["current_day_received_points"]
+        last_received_points_date = user["last_received_points_date"]
         today_timestamp = datetime.now()
 
-        if (today_timestamp - last_points_date) <= timedelta(
+        if (today_timestamp - last_received_points_date) <= timedelta(
             hours=24
-        ) and current_day_points > 0:
-            if current_day_points >= self.config.daily_limit:
+        ) and current_day_received_points > 0:
+            if current_day_received_points >= self.config.daily_limit:
                 return DailyLimitEnum.LIMIT_EXCEEDED
             return DailyLimitEnum.LIMIT_NOT_EXCEEDED
         else:
