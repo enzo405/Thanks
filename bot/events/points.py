@@ -72,7 +72,11 @@ class PointsManager:
             try:
                 await member.add_roles(role)
                 await member.send(
-                    f"You have been given the role {role.name} for reaching {threshold} points!"
+                    embed=discord.Embed(
+                        title="Role Granted",
+                        description=f"You have been given the role {role.name} for reaching {threshold} points!",
+                        color=discord.Color.random(),
+                    )
                 )
             except Exception as e:
                 print(f"Failed to add role {role.name} to {member.name}: {e}")
