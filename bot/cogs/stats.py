@@ -29,18 +29,23 @@ class StatsThank(commands.Cog):
             if user:
                 embed = discord.Embed(
                     title="",
-                    description=f"{target.name} has {user[0]['points']} point(s) and has thanked {user[0]['num_of_thanks']} times",
+                    description=f"You have {user[0]['points']} point(s) and has thanked {user[0]['num_of_thanks']} times",
                     color=0x1E1F22,
                 )
             else:
                 embed = discord.Embed(
                     title="",
-                    description=f"{target.name} has 0 point and has thanked 0 times",
+                    description="You have 0 point and has thanked 0 times",
                     color=0x1E1F22,
                 )
-            embed.set_author(name=target.display_name, icon_url=target.avatar.url)
+            if target.avatar:
+                embed.set_author(name=target.display_name, icon_url=target.avatar.url)
+            else:
+                embed.set_author(
+                    name=target.display_name, icon_url=target.default_avatar.url
+                )
 
-            await interaction.response.send_message(embed=embed, delete_after=120)
+            await interaction.response.send_message(embed=embed, ephemeral=True)
         except discord.errors.HTTPException as e:
             print(e)
 

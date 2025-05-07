@@ -31,11 +31,11 @@ class Leaderboard(commands.Cog):
             if interaction.guild.icon:
                 embed.set_thumbnail(url=interaction.guild.icon.url)
             for i, user in enumerate(users):
-                rank = i+1
+                rank = i + 1
                 member = interaction.guild.get_member(user["discord_user_id"])
                 if member is None:
                     continue
-                desc = f"helped {user['points']} times\n-# ​ ​ ​ ​ ◉ and has thanked {user["num_of_thanks"]} times\n"
+                desc = f"helped {user['points']} times\n-# ​ ​ ​ ​ ◉ and has thanked {user['num_of_thanks']} times\n"
                 if rank == 1:
                     desc = f"🥇__{member.mention}__ - " + desc
                 elif rank == 2:
@@ -43,7 +43,7 @@ class Leaderboard(commands.Cog):
                 elif rank == 3:
                     desc = f"🥉__{member.mention}__ - " + desc
                 else:
-                    desc = f"{member.mention} - "+ desc
+                    desc = f"{member.mention} - " + desc
                 embed.description += f"{rank}. {desc}"
 
             await interaction.response.send_message(embed=embed)
