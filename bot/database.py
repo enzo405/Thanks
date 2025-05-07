@@ -10,6 +10,8 @@ class TableName(Enum):
     ADMINS = "bot_administrator"
     POINTS = "points"
     CHANNELS = "channels"
+    AUTOROLES = "autoroles"
+    CACHE_DAILY = "cache_daily"
 
 
 class ThanksDB:
@@ -17,6 +19,7 @@ class ThanksDB:
         self.retry_interval = retry_interval
         self.keep_alive_interval = keep_alive_interval
         self.start_keep_alive()
+        self._and = " AND "
 
     def connect(self):
         while True:
@@ -81,9 +84,11 @@ class ThanksDB:
             f"CREATE TABLE IF NOT EXISTS `{TableName.POINTS.value}` ("
             "`guild_id` BIGINT NOT NULL,"
             "`discord_user_id` BIGINT NOT NULL,"
-            "`points` BIGINT DEFAULT 0,"
+            "`points` INT DEFAULT 0,"
             "`last_thanks` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,"
-            "`num_of_thanks` BIGINT DEFAULT 0,"
+            "`num_of_thanks` INT DEFAULT 0,"
+            "`last_points_date` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,"
+            "`current_day_points` TINYINT DEFAULT 0,"
             "PRIMARY KEY (`guild_id`, `discord_user_id`),"
             f"FOREIGN KEY (`guild_id`) REFERENCES `{TableName.GUILDS.value}` (`guild_id`)"
             ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
@@ -94,6 +99,16 @@ class ThanksDB:
             "`channel_id` BIGINT NOT NULL,"
             "`guild_id` BIGINT NOT NULL,"
             "PRIMARY KEY (`channel_id`),"
+            f"FOREIGN KEY (`guild_id`) REFERENCES `{TableName.GUILDS.value}` (`guild_id`)"
+            ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
+        )
+
+        self.cursor.execute(
+            f"CREATE TABLE IF NOT EXISTS `{TableName.AUTOROLES.value}` ("
+            "`role_id` BIGINT NOT NULL,"
+            "`guild_id` BIGINT NOT NULL,"
+            "`threshold` SMALLINT NOT NULL,"
+            "PRIMARY KEY (`role_id`, `threshold`),"
             f"FOREIGN KEY (`guild_id`) REFERENCES `{TableName.GUILDS.value}` (`guild_id`)"
             ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
         )
@@ -148,7 +163,7 @@ class ThanksDB:
             columns = ["*"]
         query = f"SELECT {', '.join(columns)} FROM `{table}`"
         if where:
-            where_query = " AND ".join([f"{key} = %s" for key in where.keys()])
+            where_query = self._and.join([f"{key} = %s" for key in where.keys()])
             query += f" WHERE {where_query}"
         if order_by:
             query += f" ORDER BY {order_by}"
@@ -172,7 +187,7 @@ class ThanksDB:
         """
         self.reconnect_if_needed()
         set_clause = ", ".join([f"{key} = %s" for key in data.keys()])
-        where_clause = " AND ".join([f"{key} = %s" for key in where.keys()])
+        where_clause = self._and.join([f"{key} = %s" for key in where.keys()])
         values = tuple(data.values()) + tuple(where.values())
         print(f"UPDATE `{table}` SET {set_clause} WHERE {where_clause}", values)
         self.cursor.execute(
@@ -192,7 +207,7 @@ class ThanksDB:
             None
         """
         self.reconnect_if_needed()
-        where_clause = " AND ".join([f"{key} = %s" for key in where.keys()])
+        where_clause = self._and.join([f"{key} = %s" for key in where.keys()])
         print(f"DELETE FROM `{table}` WHERE {where_clause}", tuple(where.values()))
         self.cursor.execute(
             f"DELETE FROM `{table}` WHERE {where_clause}", tuple(where.values())

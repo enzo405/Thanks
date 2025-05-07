@@ -2,8 +2,8 @@ from discord.ext import commands
 import discord
 import os
 
-from bot.events.points import *
-from bot.config.cogs_list import *
+from bot.events.points import Points
+from bot.config.cogs_list import load_cogs, cogs
 from bot.database import db, TableName
 
 
