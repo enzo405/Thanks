@@ -54,10 +54,10 @@ class PointsManager:
         autoroles = self.db.select(
             TableName.AUTOROLES.value, where={"guild_id": guild_id}
         )
-        if not autoroles:
+        if not autoroles or len(autoroles) == 0:
             return
         for autorole in autoroles:
-            if points >= autorole["threshold"]:
+            if points == autorole["threshold"]:
                 role = self.bot.get_guild(guild_id).get_role(autorole["role_id"])
                 if role:
                     await self.give_role(guild_id, user_id, role, autorole["threshold"])

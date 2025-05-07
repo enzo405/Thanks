@@ -27,6 +27,18 @@ class Autorole(commands.Cog):
             )
             return
 
+        if (
+            role.permissions.administrator
+            or role.permissions.moderate_members
+            or role.permissions.manage_roles
+            or role.permissions.manage_channels
+        ):
+            await interaction.response.send_message(
+                "You cannot assign an autorole to a role with manages permissions (roles, channels, members).",
+                ephemeral=True,
+            )
+            return
+
         try:
             self.db.insert(
                 TableName.AUTOROLES.value,
@@ -42,6 +54,10 @@ class Autorole(commands.Cog):
             )
         except discord.errors.HTTPException as e:
             await interaction.response.send_message(e, ephemeral=True)
+        except Exception as e:
+            await interaction.response.send_message(
+                f"An error occurred: {e}", ephemeral=True
+            )
 
     @app_commands.command(
         name="remove_autorole",
