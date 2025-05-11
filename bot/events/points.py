@@ -1,4 +1,5 @@
 import discord
+import re
 from datetime import datetime, timedelta
 from typing import List, Optional
 
@@ -182,7 +183,7 @@ class PointsValidator:
 
     def is_valid_thank_message(self, message: discord.Message) -> bool:
         """Check if a message contains a valid thank word."""
-        words = message.content.lower().split()
+        words = re.findall(r"\w+", message.content.lower())
         return any(word in words for word in self.config.thank_words)
 
     def get_mentioned_users(self, message: discord.Message) -> List[int]:
