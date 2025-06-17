@@ -1,10 +1,10 @@
 from discord.ext import commands
 import discord
-import os
 
 from bot.events.points import Points
 from bot.config.cogs_list import load_cogs, cogs
 from bot.database import db, TableName
+from bot.logger import Logger
 
 
 class Client(commands.Bot):
@@ -18,6 +18,7 @@ class Client(commands.Bot):
             print("Error while connecting to the database: ", e)
 
         self.db = db
+        self.logger = Logger(self)
         self.points_event = Points(self)
 
     async def setup_hook(self):
@@ -64,6 +65,7 @@ class Client(commands.Bot):
                 self.db.insert(TableName.GUILDS.value, {"guild_id": guild.id})
             await self.tree.sync(guild=guild)
         await self.tree.sync()
+        await self.logger.setup()
 
         print("-----------------------------------------")
         print(f"{self.user} is ready")

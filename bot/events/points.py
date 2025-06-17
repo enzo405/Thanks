@@ -21,6 +21,14 @@ class PointsConfig:
         "thanks",
         "thx",
         "thnx",
+        "gracias",
+        "grax",
+        "спс",
+        "спасибо",
+        "спасиб",
+        "благодарю",
+        "спасибочки",
+        "благодарствую",
     ]
     embed_color: int = 0x1E1F22
     message_timeout: int = 12  # seconds
@@ -183,7 +191,7 @@ class PointsValidator:
 
     def is_valid_thank_message(self, message: discord.Message) -> bool:
         """Check if a message contains a valid thank word."""
-        words = re.findall(r"\w+", message.content.lower())
+        words = re.findall(r"[\w/]+", message.content.lower())
         return any(word in words for word in self.config.thank_words)
 
     def get_mentioned_users(self, message: discord.Message) -> List[int]:
@@ -227,6 +235,10 @@ class Points:
         """Process a message and handle points if applicable."""
         if not self.validator.is_valid_thank_message(message):
             return
+
+        await self.bot.logger.info(
+            f"Processing message for points: `{message.content}`"
+        )
 
         mentioned_users = self.validator.get_mentioned_users(message)
         if not mentioned_users:
