@@ -13,6 +13,9 @@ class Logger:
             raise ValueError("Channel ID invalid.")
 
         self.channel = await self.bot.fetch_channel(channel_id)
+        print(
+            f"Logger initialized with channel: {self.channel.name} ({self.channel.id})"
+        )
 
     async def info(self, message: str):
         print(f"[INFO]: {message}")
