@@ -21,6 +21,7 @@ class PointsConfig:
         "thanks",
         "thx",
         "thnx",
+        "merci",
         "gracias",
         "grax",
         "спс",
@@ -29,9 +30,12 @@ class PointsConfig:
         "благодарю",
         "спасибочки",
         "благодарствую",
+        "mersi",
+        "multumesc",
+        "mulțumesc",
     ]
     embed_color: int = 0x1E1F22
-    message_timeout: int = 12  # seconds
+    message_timeout: int = 30  # seconds
 
 
 class DailyLimitEnum(Enum):
@@ -88,6 +92,9 @@ class PointsManager:
                     )
                 )
             except Exception as e:
+                await self.bot.logger.error(
+                    f"Guild: {guild_id}\nFailed to add role {role.name} to {member.name}: {e}"
+                )
                 print(f"Failed to add role {role.name} to {member.name}: {e}")
 
     def create_user_points(self, guild_id: int, user_id: int, points: int = 0) -> None:
@@ -236,9 +243,12 @@ class Points:
         if not self.validator.is_valid_thank_message(message):
             return
 
-        await self.bot.logger.info(
-            f"Processing message for points: `{message.content}`"
-        )
+        try:
+            await self.bot.logger.info(
+                f"Processing message for points: {message.jump_url}```{message.content}```"
+            )
+        except Exception as e:
+            print(f"Error logging message: {e}")
 
         mentioned_users = self.validator.get_mentioned_users(message)
         if not mentioned_users:
