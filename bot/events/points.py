@@ -13,6 +13,7 @@ class PointsConfig:
     cooldown_minutes: int = 60
     daily_limit: int = 5
     thank_words: List[str] = [
+        # English thank words
         "ty",
         "tyvm",
         "tysm",
@@ -21,18 +22,28 @@ class PointsConfig:
         "thanks",
         "thx",
         "thnx",
+        # French thank words
         "merci",
+        # Spanish thank words
         "gracias",
         "grax",
+        # Russian thank words
         "спс",
         "спасибо",
         "спасиб",
         "благодарю",
         "спасибочки",
         "благодарствую",
+        # Romanian thank words
         "mersi",
         "multumesc",
         "mulțumesc",
+        # Ukrainian thank words
+        "дякую",
+        "спасибі",
+        "дяк",
+        # German thank words
+        "danke",
     ]
     embed_color: int = 0x1E1F22
     message_timeout: int = 30  # seconds
@@ -245,7 +256,7 @@ class Points:
 
         try:
             await self.bot.logger.info(
-                f"Processing message for points: {message.jump_url}```{message.content}```"
+                f"Processing message for points: {message.jump_url}```{message.content.replace('`', '&#96;')}```"
             )
         except Exception as e:
             print(f"Error logging message: {e}")
