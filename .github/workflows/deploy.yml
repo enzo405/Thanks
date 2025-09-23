@@ -1,0 +1,45 @@
+name: CI/CD
+
+on:
+    push:
+        branches:
+            - "main"
+
+jobs:
+    deploy:
+        runs-on: ubuntu-latest
+
+        env:
+            IMAGE_NAME: thanksbot
+            REGISTRY: ${{ secrets.REGISTRY_URL }}
+
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+
+            - name: Generate appVersion
+              id: version
+              run: |
+                  APP_NAME="thanksbot"
+                  DATE=$(date +'%Y%m%d')
+                  GITHUB_BRANCH=${{ github.ref_name }}
+                  BUILD_NUM=${{ github.run_number }}
+                  VERSION="${APP_NAME}-${DATE}-${GITHUB_BRANCH}-${BUILD_NUM}"
+                  echo "appVersion=$VERSION" >> $GITHUB_ENV
+                  echo "appVersion=$VERSION" >> $GITHUB_OUTPUT
+
+            - name: Log into Docker Registry
+              run: echo "${{ secrets.REGISTRY_PASSWORD }}" | docker login ${{ secrets.REGISTRY_URL }} -u ${{ secrets.REGISTRY_USERNAME }} --password-stdin
+
+            - name: Build and tag Docker image
+              run: |
+                  docker build -t $REGISTRY/${{ env.IMAGE_NAME }}:${{ env.appVersion }} -t $REGISTRY/${{ env.IMAGE_NAME }}:latest .
+
+            - name: Push Docker images
+              run: |
+                  docker push $REGISTRY/${{ env.IMAGE_NAME }}:${{ env.appVersion }}
+                  docker push $REGISTRY/${{ env.IMAGE_NAME }}:latest
+
+            - name: Trigger Portainer webhook
+              run: |
+                  curl -X POST ${{ secrets.PORTAINER_WEBHOOK_URL }}

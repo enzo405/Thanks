@@ -1,0 +1,5 @@
+# Ignore all env files with extension
+.env.*
+
+# Re-include .env.dist
+!.env.dist
