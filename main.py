@@ -11,19 +11,20 @@ else:
 
 # Load the appropriate .env file
 if environment == "dev":
-    print('using dev env')
+    print("Loading development env variable")
     load_dotenv(".env.local")
 else:
-    load_dotenv(".env.prod")
+    print("Loading production env variable")
+    load_dotenv("stack.env")
 
 Thanks_Bot = Client()
 
 if __name__ == "__main__":
     if environment == "dev":
-        print('Dev mode launched running ...')
+        print("Dev mode launched running ...")
         Thanks_Bot.run(os.getenv("TOKEN"))
     elif environment == "prod":
-        print('Prod mode launched running ...')
+        print("Prod mode launched running ...")
         Thanks_Bot.run(os.getenv("TOKEN"))
     else:
         print("Invalid environment")
