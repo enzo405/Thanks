@@ -3,7 +3,8 @@ name: CI/CD
 on:
     push:
         branches:
-            - "main"
+            - main
+            - "feature/*"
 
 jobs:
     deploy:
@@ -22,24 +23,30 @@ jobs:
               run: |
                   APP_NAME="thanksbot"
                   DATE=$(date +'%Y%m%d')
-                  GITHUB_BRANCH=${{ github.ref_name }}
-                  BUILD_NUM=${{ github.run_number }}
-                  VERSION="${APP_NAME}-${DATE}-${GITHUB_BRANCH}-${BUILD_NUM}"
+                  BRANCH="${{ github.ref_name }}"
+                  BRANCH_SAFE=$(echo "$BRANCH" | tr '/ .' '---')
+                  BUILD_NUM="${{ github.run_number }}"
+                  VERSION="${APP_NAME}-${DATE}-${BRANCH_SAFE}-${BUILD_NUM}"
                   echo "appVersion=$VERSION" >> $GITHUB_ENV
                   echo "appVersion=$VERSION" >> $GITHUB_OUTPUT
 
             - name: Log into Docker Registry
+              if: github.ref == 'refs/heads/main'
               run: echo "${{ secrets.REGISTRY_PASSWORD }}" | docker login ${{ secrets.REGISTRY_URL }} -u ${{ secrets.REGISTRY_USERNAME }} --password-stdin
 
             - name: Build and tag Docker image
               run: |
-                  docker build -t $REGISTRY/${{ env.IMAGE_NAME }}:${{ env.appVersion }} -t $REGISTRY/${{ env.IMAGE_NAME }}:latest .
+                  docker build \
+                      -t "$REGISTRY/${{ env.IMAGE_NAME }}:${{ env.appVersion }}" \
+                      -t "$REGISTRY/${{ env.IMAGE_NAME }}:latest" .
 
             - name: Push Docker images
+              if: github.ref == 'refs/heads/main'
               run: |
-                  docker push $REGISTRY/${{ env.IMAGE_NAME }}:${{ env.appVersion }}
-                  docker push $REGISTRY/${{ env.IMAGE_NAME }}:latest
+                  docker push "$REGISTRY/${{ env.IMAGE_NAME }}:${{ env.appVersion }}"
+                  docker push "$REGISTRY/${{ env.IMAGE_NAME }}:latest"
 
             - name: Trigger Portainer webhook
+              if: github.ref == 'refs/heads/main'
               run: |
-                  curl -X POST ${{ secrets.PORTAINER_WEBHOOK_URL }}
+                  curl -X POST "${{ secrets.PORTAINER_WEBHOOK_URL }}"
