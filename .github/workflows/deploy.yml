@@ -31,6 +31,7 @@ jobs:
                   echo "appVersion=$VERSION" >> $GITHUB_OUTPUT
 
             - name: Log into Docker Registry
+              if: github.ref == 'refs/heads/main'
               run: echo "${{ secrets.REGISTRY_PASSWORD }}" | docker login ${{ secrets.REGISTRY_URL }} -u ${{ secrets.REGISTRY_USERNAME }} --password-stdin
 
             - name: Build and tag Docker image
@@ -40,10 +41,12 @@ jobs:
                       -t "$REGISTRY/${{ env.IMAGE_NAME }}:latest" .
 
             - name: Push Docker images
+              if: github.ref == 'refs/heads/main'
               run: |
                   docker push "$REGISTRY/${{ env.IMAGE_NAME }}:${{ env.appVersion }}"
                   docker push "$REGISTRY/${{ env.IMAGE_NAME }}:latest"
 
             - name: Trigger Portainer webhook
+              if: github.ref == 'refs/heads/main'
               run: |
                   curl -X POST "${{ secrets.PORTAINER_WEBHOOK_URL }}"
