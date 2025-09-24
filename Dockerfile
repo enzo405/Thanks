@@ -24,4 +24,4 @@ COPY . /app
 
 USER thanksbotuser
 
-CMD ["python", "main.py"]
+CMD ["python", "main.py", "prod"]
