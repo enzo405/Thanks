@@ -48,7 +48,7 @@ class Leaderboard(commands.Cog):
 
             await interaction.response.send_message(embed=embed)
         except discord.errors.HTTPException as e:
-            print(e)
+            print(f"[ERROR] {e}")
 
 
 async def setup(bot):

@@ -14,21 +14,21 @@ class Logger:
 
         self.channel = await self.bot.fetch_channel(channel_id)
         print(
-            f"Logger initialized with channel: {self.channel.name} ({self.channel.id})"
+            f"[INFO] Logger initialized with channel: {self.channel.name} ({self.channel.id})"
         )
 
     async def info(self, message: str):
-        print(f"[INFO]: {message}")
+        print(f"[INFO]: {message[:10]}")
         await self.channel.send(f"[INFO] {message}")
 
     async def warning(self, message: str):
-        print(f"[WARNING]: {message}")
+        print(f"[WARNING]: {message[:10]}")
         await self.channel.send(f"[WARNING] {message}")
 
     async def error(self, message: str):
-        print(f"[ERROR]: {message}")
+        print(f"[ERROR]: {message[:10]}")
         await self.channel.send(f"[ERROR] {message}")
 
     async def debug(self, message: str):
-        print(f"[DEBUG]: {message}")
+        print(f"[DEBUG]: {message[:10]}")
         await self.channel.send(f"[DEBUG] {message}")

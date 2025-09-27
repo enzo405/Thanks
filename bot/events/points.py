@@ -106,7 +106,7 @@ class PointsManager:
                 await self.bot.logger.error(
                     f"Guild: {guild_id}\nFailed to add role {role.name} to {member.name}: {e}"
                 )
-                print(f"Failed to add role {role.name} to {member.name}: {e}")
+                print(f"[ERROR] Failed to add role {role.name} to {member.name}: {e}")
 
     def create_user_points(self, guild_id: int, user_id: int, points: int = 0) -> None:
         """Create a new points record for a user."""
@@ -259,7 +259,7 @@ class Points:
                 f"Processing message for points: {message.jump_url}```{message.content.replace('`', '&#96;')}```"
             )
         except Exception as e:
-            print(f"Error logging message: {e}")
+            print(f"[ERROR] Error logging message: {e}")
 
         mentioned_users = self.validator.get_mentioned_users(message)
         if not mentioned_users:
