@@ -15,7 +15,7 @@ class Client(commands.Bot):
         try:
             db.connect()
         except Exception as e:
-            print("Error while connecting to the database: ", e)
+            print("[ERROR] Error while connecting to the database: ", e)
 
         self.db = db
         self.logger = Logger(self)
@@ -28,7 +28,7 @@ class Client(commands.Bot):
         To perform asynchronous setup after the bot is logged in but before it has connected to the Websocket, overwrite this coroutine.\n
         This is only called once, in login(), and will be called before any events are dispatched, making it a better solution than doing such setup in the on_ready() event.
         """
-        print("Setting up the bot...")
+        print("[INFO] Setting up the bot...")
 
         self.fetch_guilds_config()
 
@@ -37,12 +37,12 @@ class Client(commands.Bot):
     async def on_guild_join(self, guild: discord.Guild):
         self.db.insert(TableName.GUILDS.value, {"guild_id": guild.id})
         self.fetch_guilds_config()
-        print(f"Bot has been added to {guild.name}")
+        print(f"[INFO] Bot has been added to {guild.name}")
 
     async def on_guild_remove(self, guild: discord.Guild):
         self.db.delete(TableName.GUILDS.value, {"guild_id": guild.id})
         self.fetch_guilds_config()
-        print(f"Bot has been removed from {guild.name}")
+        print(f"[INFO] Bot has been removed from {guild.name}")
 
     def fetch_guilds_config(self):
         self.guilds_config = {}
@@ -55,7 +55,7 @@ class Client(commands.Bot):
                 TableName.CHANNELS.value, ["channel_id"], {"guild_id": guild}
             )
             self.guilds_config[guild] = {"blacklisted_channel": blacklisted_channel}
-        print("Guilds config fetched")
+        print("[INFO] Guilds config fetched")
 
     async def on_ready(self):
         await self.wait_until_ready()

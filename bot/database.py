@@ -24,7 +24,7 @@ class ThanksDB:
     def connect(self):
         while True:
             try:
-                print("Connecting to the database...")
+                print("[INFO] Connecting to the database...")
                 self.db = mysql.connector.connect(
                     host=os.getenv("DB_HOST", "localhost"),
                     port=int(os.getenv("DB_PORT", 3306)),
@@ -34,11 +34,11 @@ class ThanksDB:
                 )
                 self.cursor = self.db.cursor(dictionary=True)
                 self.init_db()
-                print("Connected to the database.")
+                print("[INFO] Connected to the database.")
                 break
             except mysql.connector.Error as err:
-                print(f"Error: {err}")
-                print(f"Retrying in {self.retry_interval} seconds...")
+                print(f"[ERROR] Error: {err}")
+                print(f"[ERROR] Retrying in {self.retry_interval} seconds...")
                 time.sleep(self.retry_interval)
 
     def start_keep_alive(self):
@@ -53,7 +53,7 @@ class ThanksDB:
                     else:
                         self.connect()
                 except mysql.connector.Error as err:
-                    print(f"Keep-alive error: {err}")
+                    print(f"[ERROR] Keep-alive error: {err}")
                     self.connect()
                 time.sleep(self.keep_alive_interval)
 
@@ -62,7 +62,7 @@ class ThanksDB:
     def reconnect_if_needed(self):
         """Reconnect if the database connection is not available."""
         if not self.db.is_connected():
-            print("Lost connection to the database. Reconnecting...")
+            print("[ERROR] Lost connection to the database. Reconnecting...")
             self.connect()
 
     def init_db(self):
@@ -131,7 +131,7 @@ class ThanksDB:
         self.reconnect_if_needed()
         keys = ", ".join(data.keys())
         values = ", ".join(["%s"] * len(data))
-        print(f"INSERT INTO `{table}` ({keys}) VALUES ({values})", tuple(data.values()))
+        print(f"[DEBUG] INSERT INTO `{table}` ({keys}) VALUES ({values})", tuple(data.values()))
         self.cursor.execute(
             f"INSERT INTO `{table}` ({keys}) VALUES ({values})", tuple(data.values())
         )
@@ -169,7 +169,7 @@ class ThanksDB:
             query += f" ORDER BY {order_by}"
         if limit:
             query += f" LIMIT {limit}"
-        print(query, tuple(where.values()) if where else None)
+        print("[DEBUG]", query, tuple(where.values()) if where else None)
         self.cursor.execute(query, tuple(where.values()) if where else None)
         return self.cursor.fetchall()
 
@@ -189,7 +189,7 @@ class ThanksDB:
         set_clause = ", ".join([f"{key} = %s" for key in data.keys()])
         where_clause = self._and.join([f"{key} = %s" for key in where.keys()])
         values = tuple(data.values()) + tuple(where.values())
-        print(f"UPDATE `{table}` SET {set_clause} WHERE {where_clause}", values)
+        print(f"[DEBUG] UPDATE `{table}` SET {set_clause} WHERE {where_clause}", values)
         self.cursor.execute(
             f"UPDATE `{table}` SET {set_clause} WHERE {where_clause}", values
         )
@@ -208,7 +208,7 @@ class ThanksDB:
         """
         self.reconnect_if_needed()
         where_clause = self._and.join([f"{key} = %s" for key in where.keys()])
-        print(f"DELETE FROM `{table}` WHERE {where_clause}", tuple(where.values()))
+        print(f"[DEBUG] DELETE FROM `{table}` WHERE {where_clause}", tuple(where.values()))
         self.cursor.execute(
             f"DELETE FROM `{table}` WHERE {where_clause}", tuple(where.values())
         )

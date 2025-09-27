@@ -47,7 +47,7 @@ class StatsThank(commands.Cog):
 
             await interaction.response.send_message(embed=embed, ephemeral=True)
         except discord.errors.HTTPException as e:
-            print(e)
+            print(f"[ERROR] {e}")
 
 
 async def setup(bot):
