@@ -254,13 +254,6 @@ class Points:
         if not self.validator.is_valid_thank_message(message):
             return
 
-        try:
-            await self.bot.logger.info(
-                f"Processing message for points: {message.jump_url}```{message.content.replace('`', '&#96;')}```"
-            )
-        except Exception as e:
-            print(f"[ERROR] Error logging message: {e}")
-
         mentioned_users = self.validator.get_mentioned_users(message)
         if not mentioned_users:
             return
