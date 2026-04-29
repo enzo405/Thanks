@@ -117,7 +117,7 @@ class PointsManager:
                 "guild_id": guild_id,
                 "discord_user_id": user_id,
                 "points": points,
-                "last_thanks": datetime.now(),
+                "last_thanks": datetime(2000, 1, 1),
                 "num_of_thanks": 0,
                 "last_received_points_date": datetime.now(),
                 "current_day_received_points": 1,

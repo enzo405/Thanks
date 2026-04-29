@@ -12,8 +12,8 @@ class Client(commands.Bot):
         intents = discord.Intents.none()
         intents.guilds = True
         intents.guild_messages = True
-        intents.message_content = True  # privileged
-        intents.members = True          # privileged — needed for role assignment cache lookup
+        intents.message_content = True
+        intents.members = True
         super().__init__(
             intents=intents,
             command_prefix="s!",
@@ -42,6 +42,7 @@ class Client(commands.Bot):
     async def on_guild_join(self, guild: discord.Guild):
         self.db.insert(TableName.GUILDS.value, {"guild_id": guild.id})
         self.fetch_guilds_config()
+        await self.tree.sync(guild=guild)
         print(f"[INFO] Bot has been added to {guild.name}")
 
     async def on_guild_remove(self, guild: discord.Guild):
@@ -86,9 +87,10 @@ class Client(commands.Bot):
         if message.author.bot:
             return
 
-        guild_config = self.guilds_config.get(message.guild.id, {"blacklisted_channel": []})
+        guild_config = self.guilds_config.get(
+            message.guild.id, {"blacklisted_channel": []}
+        )
         if message.channel.id not in [
-            channel["channel_id"]
-            for channel in guild_config["blacklisted_channel"]
+            channel["channel_id"] for channel in guild_config["blacklisted_channel"]
         ]:
             await self.points_event.process_message(message)
