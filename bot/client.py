@@ -9,13 +9,18 @@ from bot.logger import Logger
 
 class Client(commands.Bot):
     def __init__(self):
-        intents = discord.Intents.all()
-        super().__init__(intents=intents, command_prefix="s!", help_command=None)
-
-        try:
-            db.connect()
-        except Exception as e:
-            print("[ERROR] Error while connecting to the database: ", e)
+        intents = discord.Intents.none()
+        intents.guilds = True
+        intents.guild_messages = True
+        intents.message_content = True  # privileged
+        intents.members = True          # privileged — needed for role assignment cache lookup
+        super().__init__(
+            intents=intents,
+            command_prefix="s!",
+            help_command=None,
+            max_messages=100,
+            chunk_guilds_at_startup=False,
+        )
 
         self.db = db
         self.logger = Logger(self)
@@ -81,8 +86,9 @@ class Client(commands.Bot):
         if message.author.bot:
             return
 
+        guild_config = self.guilds_config.get(message.guild.id, {"blacklisted_channel": []})
         if message.channel.id not in [
             channel["channel_id"]
-            for channel in self.guilds_config[message.guild.id]["blacklisted_channel"]
+            for channel in guild_config["blacklisted_channel"]
         ]:
             await self.points_event.process_message(message)
