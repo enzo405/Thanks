@@ -2,8 +2,6 @@ import sys
 import os
 from dotenv import load_dotenv
 
-from bot.client import Client
-
 if len(sys.argv) > 1 and sys.argv[1] == "prod":
     environment = "prod"
 else:
@@ -16,6 +14,8 @@ if environment == "dev":
 else:
     print("[INFO] Loading production env variable")
     load_dotenv("stack.env")
+
+from bot.client import Client
 
 Thanks_Bot = Client()
 

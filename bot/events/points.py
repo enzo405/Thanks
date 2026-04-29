@@ -12,6 +12,8 @@ class PointsConfig:
 
     cooldown_minutes: int = 60
     daily_limit: int = 5
+    message_timeout: int = 30  # seconds
+
     thank_words: List[str] = [
         # English thank words
         "ty",
@@ -46,7 +48,6 @@ class PointsConfig:
         "danke",
     ]
     embed_color: int = 0x1E1F22
-    message_timeout: int = 30  # seconds
 
 
 class DailyLimitEnum(Enum):
