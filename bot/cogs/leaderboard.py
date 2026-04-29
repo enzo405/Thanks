@@ -32,10 +32,7 @@ class Leaderboard(commands.Cog):
                 embed.set_thumbnail(url=interaction.guild.icon.url)
             for i, user in enumerate(users):
                 rank = i + 1
-                member = interaction.guild.get_member(user["discord_user_id"])
                 member_mention = f"<@{user['discord_user_id']}>"
-                if member is not None:
-                    member = f"<@{user['discord_user_id']}>"
                 desc = f"helped {user['points']} times\n-# ​ ​ ​ ​ ◉ and has thanked {user['num_of_thanks']} times\n"
                 if rank == 1:
                     desc = f"🥇__{member_mention}__ - " + desc
