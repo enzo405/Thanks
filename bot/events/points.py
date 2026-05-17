@@ -312,6 +312,11 @@ class Points:
             description=f"{valid_users_string} received a point! Thanks for helping this community!",
             color=self.config.embed_color,
         )
-        await message.channel.send(
-            embed=embed, delete_after=self.config.message_timeout
-        )
+        try:
+            await message.channel.send(
+                embed=embed, delete_after=self.config.message_timeout
+            )
+        except discord.DiscordException as e:
+            await self.bot.logger.error(
+                f"Guild: {message.guild.id} ({message.guild.name}) - Failed to send points message: {e}"
+            )
