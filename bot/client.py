@@ -73,6 +73,13 @@ class Client(commands.Bot):
         await self.tree.sync()
         await self.logger.setup()
 
+        await self.change_presence(
+            activity=discord.Activity(
+                type=discord.ActivityType.watching,
+                name='Watching every "thank you" 💙',
+            )
+        )
+
         print("-----------------------------------------")
         print(f"{self.user} is ready")
         print("ID: " + str(self.user.id))

@@ -52,6 +52,7 @@ class ThanksDB:
 
     def start_keep_alive(self):
         """Periodically ping the database to keep the connection alive."""
+
         def keep_alive():
             while True:
                 time.sleep(self.keep_alive_interval)
@@ -148,7 +149,7 @@ class ThanksDB:
                 cursor.execute(query, tuple(data.values()))
                 self.db.commit()
             finally:
-                cursor.close()  # ✅ always close
+                cursor.close()
 
     def select(
         self,
@@ -187,9 +188,9 @@ class ThanksDB:
             cursor = self.db.cursor(dictionary=True)
             try:
                 cursor.execute(query, tuple(where.values()) if where else None)
-                return cursor.fetchall()  # ✅ always fetch
+                return cursor.fetchall()
             finally:
-                cursor.close()            # ✅ always close
+                cursor.close()
 
     def update(self, table: str, data: dict, where: dict):
         """
@@ -212,7 +213,7 @@ class ThanksDB:
                 cursor.execute(query, values)
                 self.db.commit()
             finally:
-                cursor.close()  # ✅ always close
+                cursor.close()
 
     def delete(self, table: str, where: dict):
         """
@@ -232,7 +233,7 @@ class ThanksDB:
                 cursor.execute(query, tuple(where.values()))
                 self.db.commit()
             finally:
-                cursor.close()  # ✅ always close
+                cursor.close()
 
 
 db = ThanksDB(retry_interval=10, keep_alive_interval=60)
