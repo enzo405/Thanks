@@ -5,6 +5,12 @@ on:
         branches:
             - main
             - "feature/*"
+        paths:
+            - "bot/**"
+            - "main.py"
+            - "Dockerfile"
+            - ".dockerignore"
+            - "requirements.txt"
 
 jobs:
     deploy:
