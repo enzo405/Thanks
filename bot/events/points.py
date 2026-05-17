@@ -98,6 +98,9 @@ class PointsManager:
         if member and role not in member.roles:
             try:
                 await member.add_roles(role)
+                await self.bot.logger.debug(
+                    f"Guild: {guild.id}\nSuccessfully added role {role.name} to {member.name} for reaching {threshold} points."
+                )
                 await member.send(
                     embed=discord.Embed(
                         title="Role Granted",
