@@ -41,8 +41,10 @@ class Help(commands.Cog):
             inline=False,
         )
 
-        embed.set_footer(
-            text="Want a new feature? Open an issue on [GitHub](https://github.com/enzo405/Thanks/issues) 🙌",
+        embed.add_field(
+            name="Feedback",
+            value="Want a new feature? Open an issue on [GitHub](https://github.com/enzo405/Thanks) 🙌",
+            inline=False,
         )
 
         await interaction.response.send_message(embed=embed, ephemeral=True)
