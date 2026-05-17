@@ -79,19 +79,21 @@ class PointsManager:
         autoroles = self.db.select(
             TableName.AUTOROLES.value, where={"guild_id": guild_id}
         )
-        if not autoroles or len(autoroles) == 0:
+        if not autoroles:
+            return
+        guild = self.bot.get_guild(guild_id)
+        if not guild:
             return
         for autorole in autoroles:
-            if points == autorole["threshold"]:
-                role = self.bot.get_guild(guild_id).get_role(autorole["role_id"])
+            if points >= autorole["threshold"]:
+                role = guild.get_role(autorole["role_id"])
                 if role:
-                    await self.give_role(guild_id, user_id, role, autorole["threshold"])
+                    await self.give_role(guild, user_id, role, autorole["threshold"])
 
     async def give_role(
-        self, guild_id: int, user_id: int, role: discord.Role, threshold: int
+        self, guild: discord.Guild, user_id: int, role: discord.Role, threshold: int
     ) -> None:
         """Give a role to a user."""
-        guild = self.bot.get_guild(guild_id)
         member = guild.get_member(user_id)
         if member and role not in member.roles:
             try:
@@ -99,15 +101,14 @@ class PointsManager:
                 await member.send(
                     embed=discord.Embed(
                         title="Role Granted",
-                        description=f"You have been given the role {role.name} for reaching {threshold} points!",
+                        description=f"Amazing !! You just received the role {role.name} for reaching {threshold} points in {guild.name}!",
                         color=discord.Color.random(),
                     )
                 )
             except Exception as e:
                 await self.bot.logger.error(
-                    f"Guild: {guild_id}\nFailed to add role {role.name} to {member.name}: {e}"
+                    f"Guild: {guild.id}\nFailed to add role {role.name} to {member.name}: {e}"
                 )
-                print(f"[ERROR] Failed to add role {role.name} to {member.name}: {e}")
 
     def create_user_points(self, guild_id: int, user_id: int, points: int = 0) -> None:
         """Create a new points record for a user."""
