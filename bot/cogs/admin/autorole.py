@@ -138,7 +138,6 @@ class Autorole(commands.Cog):
         else:
             embed.description = "Here are the autoroles for this server:\n\n"
             for autorole in server_autoroles:
-                print(autorole)
                 role_id = autorole["role_id"]
                 threshold = autorole["threshold"]
                 embed.description += f"<@&{role_id}>: {threshold} points\n"
