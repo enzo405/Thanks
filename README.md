@@ -1,6 +1,8 @@
-# Thanks
+# ThanksBot
 
 A Discord bot that rewards helpful members. When someone thanks another member by mentioning them, that member earns a point.
+
+Prefix: `t!`
 
 ## How it works
 

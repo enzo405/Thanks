@@ -16,7 +16,7 @@ class Client(commands.Bot):
         intents.members = True
         super().__init__(
             intents=intents,
-            command_prefix="s!",
+            command_prefix="t!",
             help_command=None,
             max_messages=100,
             chunk_guilds_at_startup=False,

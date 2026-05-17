@@ -138,13 +138,12 @@ class Autorole(commands.Cog):
         else:
             embed.description = "Here are the autoroles for this server:\n\n"
             for autorole in server_autoroles:
-                print(autorole)
                 role_id = autorole["role_id"]
                 threshold = autorole["threshold"]
                 embed.description += f"<@&{role_id}>: {threshold} points\n"
 
         try:
-            await interaction.response.send_message(embed=embed)
+            await interaction.response.send_message(embed=embed, ephemeral=True)
         except discord.errors.HTTPException as e:
             await interaction.response.send_message(e, ephemeral=True)
 

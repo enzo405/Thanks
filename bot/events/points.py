@@ -94,8 +94,14 @@ class PointsManager:
         self, guild: discord.Guild, user_id: int, role: discord.Role, threshold: int
     ) -> None:
         """Give a role to a user."""
-        member = guild.get_member(user_id)
-        if member and role not in member.roles:
+        try:
+            member = await guild.fetch_member(user_id)
+        except discord.NotFound:
+            await self.bot.logger.debug(
+                f"Guild: {guild.id}\nMember {user_id} not found when trying to assign role {role.name}."
+            )
+            return
+        if role not in member.roles:
             try:
                 await member.add_roles(role)
                 await self.bot.logger.debug(
@@ -112,6 +118,10 @@ class PointsManager:
                 await self.bot.logger.error(
                     f"Guild: {guild.id}\nFailed to add role {role.name} to {member.name}: {e}"
                 )
+        else:
+            await self.bot.logger.debug(
+                f"Guild: {guild.id} - User <@{user_id}> already has the role {role.name}."
+            )
 
     def create_user_points(self, guild_id: int, user_id: int, points: int = 0) -> None:
         """Create a new points record for a user."""
