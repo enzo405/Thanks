@@ -46,6 +46,7 @@ If you use the `/add_autorole` command, the bot's role must be **above** the rol
 | `/leaderboard` | Everyone | View the server points leaderboard |
 | `/channel_blacklist #channel` | Admin | Stop the bot from tracking thanks in a channel |
 | `/channel_whitelist #channel` | Admin | Re-enable tracking in a blacklisted channel |
+| `/show_blacklisted_channels` | Admin | Show all blacklisted channels for the server |
 | `/add_autorole @role <points>` | Admin | Assign a role automatically when a member reaches a points threshold |
 | `/remove_autorole @role` | Admin | Remove an autorole assignment |
 | `/show_autoroles` | Admin | Show all autoroles for the server |

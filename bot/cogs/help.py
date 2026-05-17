@@ -34,6 +34,7 @@ class Help(commands.Cog):
             value=(
                 "`/channel_whitelist` — Re-enable thank tracking in a channel\n"
                 "`/channel_blacklist` — Disable thank tracking in a channel\n"
+                "`/show_blacklisted_channels` — Show all blacklisted channels for the server\n"
                 "`/add_autorole` — Assign a role when a member reaches a point threshold\n"
                 "`/remove_autorole` — Remove an autorole\n"
                 "`/show_autoroles` — List all configured autoroles"
