@@ -39,6 +39,18 @@ class Autorole(commands.Cog):
             )
             return
 
+        autoroles = self.db.select(
+            TableName.AUTOROLES.value,
+            where={"guild_id": interaction.guild.id},
+        )
+        for autorole in autoroles:
+            if autorole["role_id"] == role.id:
+                await interaction.response.send_message(
+                    f"The role <@&{role.id}> is already an autorole ({autorole['threshold']} points).",
+                    ephemeral=True,
+                )
+                return
+
         try:
             self.db.insert(
                 TableName.AUTOROLES.value,
