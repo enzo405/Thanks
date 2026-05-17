@@ -11,7 +11,7 @@ class Help(commands.Cog):
     @app_commands.command(name="help", description="Show all available commands")
     async def help(self, interaction: discord.Interaction):
         embed = discord.Embed(
-            title="Thanks Bot — Commands",
+            title="Thanks Bot (prefix: `t!`)",
             description=(
                 "This bot tracks **thank you** messages and rewards helpful members "
                 "with points and roles.\n​"
@@ -41,13 +41,9 @@ class Help(commands.Cog):
             inline=False,
         )
 
-        embed.add_field(
-            name="Want a new feature?",
-            value="Open an issue on [GitHub](https://github.com/enzo405/Thanks/issues) 🙌",
-            inline=False,
+        embed.set_footer(
+            text="Want a new feature? Open an issue on [GitHub](https://github.com/enzo405/Thanks/issues) 🙌",
         )
-
-        embed.set_footer(text="Points are earned when members thank each other in chat.")
 
         await interaction.response.send_message(embed=embed, ephemeral=True)
 

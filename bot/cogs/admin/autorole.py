@@ -144,7 +144,7 @@ class Autorole(commands.Cog):
                 embed.description += f"<@&{role_id}>: {threshold} points\n"
 
         try:
-            await interaction.response.send_message(embed=embed)
+            await interaction.response.send_message(embed=embed, ephemeral=True)
         except discord.errors.HTTPException as e:
             await interaction.response.send_message(e, ephemeral=True)
 
