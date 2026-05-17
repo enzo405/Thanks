@@ -98,14 +98,14 @@ class PointsManager:
             member = await guild.fetch_member(user_id)
         except discord.NotFound:
             await self.bot.logger.debug(
-                f"Guild: {guild.id}\nMember {user_id} not found when trying to assign role {role.name}."
+                f"Guild: {guild.id} - Member {user_id} not found when trying to assign role {role.name}."
             )
             return
         if role not in member.roles:
             try:
                 await member.add_roles(role)
                 await self.bot.logger.debug(
-                    f"Guild: {guild.id}\nSuccessfully added role {role.name} to {member.name} for reaching {threshold} points."
+                    f"Guild: {guild.id} - Successfully added role {role.name} to {member.name} for reaching {threshold} points."
                 )
                 await member.send(
                     embed=discord.Embed(
@@ -116,7 +116,7 @@ class PointsManager:
                 )
             except Exception as e:
                 await self.bot.logger.error(
-                    f"Guild: {guild.id}\nFailed to add role {role.name} to {member.name}: {e}"
+                    f"Guild: {guild.id} - Failed to add role {role.name} to {member.name}: {e}"
                 )
         else:
             await self.bot.logger.debug(
