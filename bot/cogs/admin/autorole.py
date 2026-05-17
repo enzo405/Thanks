@@ -39,6 +39,14 @@ class Autorole(commands.Cog):
             )
             return
 
+        # Check if the role is higher than the bot's top role
+        if role >= interaction.guild.me.top_role:
+            await interaction.response.send_message(
+                "The role you want to assign as an autorole must be lower than the bot's top role.",
+                ephemeral=True,
+            )
+            return
+
         autoroles = self.db.select(
             TableName.AUTOROLES.value,
             where={"guild_id": interaction.guild.id},

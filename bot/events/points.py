@@ -1,3 +1,4 @@
+import asyncio
 import discord
 import re
 from datetime import datetime, timedelta
@@ -63,6 +64,7 @@ class PointsManager:
         self.db = db
         self.bot = bot
         self.validator: PointsValidator = validator
+        self._background_tasks: set = set()
 
     def get_user_points(self, guild_id: int, user_id: int) -> Optional[dict]:
         """Get a user's points record."""
@@ -81,46 +83,55 @@ class PointsManager:
         )
         if not autoroles:
             return
+
         guild = self.bot.get_guild(guild_id)
         if not guild:
             return
-        for autorole in autoroles:
-            if points >= autorole["threshold"]:
-                role = guild.get_role(autorole["role_id"])
-                if role:
-                    await self.give_role(guild, user_id, role, autorole["threshold"])
 
-    async def give_role(
-        self, guild: discord.Guild, user_id: int, role: discord.Role, threshold: int
-    ) -> None:
-        """Give a role to a user."""
         try:
             member = await guild.fetch_member(user_id)
         except discord.NotFound:
             await self.bot.logger.debug(
-                f"Guild: {guild.id} - Member {user_id} not found when trying to assign role {role.name}."
+                f"Guild: {guild.id} - Member {user_id} not found."
             )
             return
-        if role not in member.roles:
-            try:
-                await member.add_roles(role)
-                await self.bot.logger.debug(
-                    f"Guild: {guild.id} - Successfully added role {role.name} to {member.name} for reaching {threshold} points."
-                )
-                await member.send(
-                    embed=discord.Embed(
-                        title="Role Granted",
-                        description=f"Amazing !! You just received the role {role.name} for reaching {threshold} points in {guild.name}!",
-                        color=discord.Color.random(),
+
+        user_roles_ids = [role.id for role in member.roles]
+
+        for autorole in autoroles:
+            user_has_role = autorole["role_id"] in user_roles_ids
+            if points >= autorole["threshold"] and not user_has_role:
+                role = guild.get_role(autorole["role_id"])
+                if role is not None:
+                    await self.give_role(guild, member, role, autorole["threshold"])
+                else:
+                    await self.bot.logger.error(
+                        f"Guild: {guild.id} - Role {role.name} not found when trying to assign to user {member.name}."
                     )
-                )
-            except Exception as e:
-                await self.bot.logger.error(
-                    f"Guild: {guild.id} - Failed to add role {role.name} to {member.name}: {e}"
-                )
-        else:
+
+    async def give_role(
+        self,
+        guild: discord.Guild,
+        member: discord.Member,
+        role: discord.Role,
+        threshold: int,
+    ) -> None:
+        """Give a role to a member."""
+        try:
+            await member.add_roles(role)
             await self.bot.logger.debug(
-                f"Guild: {guild.id} - User <@{user_id}> already has the role {role.name}."
+                f"Guild: {guild.id} - Successfully added role {role.name} to {member.name} for reaching {threshold} points."
+            )
+            await member.send(
+                embed=discord.Embed(
+                    title="Role Granted",
+                    description=f"Amazing !! You just received the role {role.name} for reaching {threshold} points in {guild.name}!",
+                    color=discord.Color.random(),
+                )
+            )
+        except Exception as e:
+            await self.bot.logger.error(
+                f"Guild: {guild.id} - Failed to add role {role.name} to {member.name}: {e}"
             )
 
     def create_user_points(self, guild_id: int, user_id: int, points: int = 0) -> None:
@@ -168,9 +179,13 @@ class PointsManager:
                         {"guild_id": guild_id, "discord_user_id": user_id},
                     )
 
-            await self.check_role_threshold(
-                user_id, current["points"] + points_delta, guild_id
+            task = asyncio.create_task(
+                self.check_role_threshold(
+                    user_id, current["points"] + points_delta, guild_id
+                )
             )
+            self._background_tasks.add(task)
+            task.add_done_callback(self._background_tasks.discard)
         else:
             self.create_user_points(guild_id, user_id, points_delta)
 

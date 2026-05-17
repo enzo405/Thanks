@@ -18,17 +18,17 @@ class Logger:
         )
 
     async def info(self, message: str):
-        print(f"[INFO]: {message[:10]}")
+        print(f"[INFO]: {message}")
         await self.channel.send(f"[INFO] {message}")
 
     async def warning(self, message: str):
-        print(f"[WARNING]: {message[:10]}")
+        print(f"[WARNING]: {message}")
         await self.channel.send(f"[WARNING] {message}")
 
     async def error(self, message: str):
-        print(f"[ERROR]: {message[:10]}")
+        print(f"[ERROR]: {message}")
         await self.channel.send(f"[ERROR] {message}")
 
     async def debug(self, message: str):
-        print(f"[DEBUG]: {message[:10]}")
+        print(f"[DEBUG]: {message}")
         await self.channel.send(f"[DEBUG] {message}")
