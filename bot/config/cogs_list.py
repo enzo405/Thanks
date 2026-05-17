@@ -2,6 +2,7 @@ from bot.cogs.stats import setup
 from bot.cogs.admin.channels import setup
 from bot.cogs.leaderboard import setup
 from bot.cogs.admin.autorole import setup
+from bot.cogs.help import setup
 
 import discord
 
@@ -10,6 +11,7 @@ cogs = [
     "bot.cogs.admin.channels",
     "bot.cogs.leaderboard",
     "bot.cogs.admin.autorole",
+    "bot.cogs.help",
 ]
 
 
