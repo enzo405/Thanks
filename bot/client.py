@@ -13,7 +13,6 @@ class Client(commands.Bot):
         intents.guilds = True
         intents.guild_messages = True
         intents.message_content = True
-        intents.members = True
         super().__init__(
             intents=intents,
             command_prefix="t!",
