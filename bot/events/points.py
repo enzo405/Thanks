@@ -309,7 +309,7 @@ class Points:
         valid_users_string = valid_users_string[:-2]
         embed = discord.Embed(
             title="",
-            description=f"{valid_users_string} received a point! Thanks for helping this community!",
+            description=f"{valid_users_string} received a point! Thank you for helping this community!",
             color=self.config.embed_color,
         )
         try:
